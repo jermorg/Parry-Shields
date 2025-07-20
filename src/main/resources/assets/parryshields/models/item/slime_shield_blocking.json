@@ -1,0 +1,23 @@
+{
+  "parent": "parryshields:item/slime_shield",
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [55, 152, 1],
+      "translation": [-2, -6.25, 0.25]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [55, 133, 1],
+      "translation": [-0.75, -6.5, 1.75]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, -180, -7],
+      "translation": [-1.75, -14, 6.25],
+      "scale": [1.5, 1.5, 1.25]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, -180, -7],
+      "translation": [4, -14, 6.25],
+      "scale": [1.5, 1.5, 1.25]
+    }
+  }
+}
