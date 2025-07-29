@@ -56,6 +56,17 @@ public class DefaultShield extends ShieldItem {
     }
 
     @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return false;
+    }
+
+
+    @Override
     public boolean isFoil(ItemStack stack) {
         if (Minecraft.getInstance().player != null) {
             Player player = Minecraft.getInstance().player;
@@ -135,6 +146,6 @@ public class DefaultShield extends ShieldItem {
                 SoundSource.PLAYERS, 1.0f, 1.0f
         );
 
-        pendingCrits.remove(targetId); // тільки раз
+        pendingCrits.remove(targetId);
     }
 }

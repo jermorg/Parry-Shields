@@ -50,6 +50,17 @@ public class SpikeShield extends ShieldItem {
     }
 
     @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return false;
+    }
+
+
+    @Override
     public boolean isFoil(ItemStack stack) {
         if (Minecraft.getInstance().player != null) {
             Player player = Minecraft.getInstance().player;
@@ -71,10 +82,8 @@ public class SpikeShield extends ShieldItem {
 
         Entity directSource = event.getSource().getDirectEntity();
 
-        // Відсіюємо стріли
         if (directSource instanceof AbstractArrow) return;
 
-        // Відсіюємо вибухи
         DamageSource source = event.getSource();
         String damageType = source.getMsgId();
         if ("explosion".equals(damageType) || "explosion.player".equals(damageType)) return;

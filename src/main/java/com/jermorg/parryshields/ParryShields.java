@@ -46,6 +46,7 @@ public class ParryShields {
             event.accept(ModItems.SHIELD_PLUS);
             event.accept(ModItems.SPIKE_SHIELD);
             event.accept(ModItems.SLIME_SHIELD);
+            event.accept(ModItems.ABSORBING_SHIELD);
         }
     }
 
@@ -57,6 +58,7 @@ public class ParryShields {
                 registerShieldProperty(ModItems.SHIELD_PLUS.get());
                 registerShieldProperty(ModItems.SPIKE_SHIELD.get());
                 registerShieldProperty(ModItems.SLIME_SHIELD.get());
+                registerShieldProperty(ModItems.ABSORBING_SHIELD.get());
             });
         }
 

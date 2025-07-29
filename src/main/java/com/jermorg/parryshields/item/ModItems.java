@@ -1,6 +1,7 @@
 package com.jermorg.parryshields.item;
 
 import com.jermorg.parryshields.ParryShields;
+import com.jermorg.parryshields.item.shield.AbsorbingShield;
 import com.jermorg.parryshields.item.shield.DefaultShield;
 import com.jermorg.parryshields.item.shield.SlimeShield;
 import com.jermorg.parryshields.item.shield.SpikeShield;
@@ -17,6 +18,7 @@ public class ModItems {
     public static final RegistryObject<Item> SHIELD_PLUS = ITEMS.register("shield_plus", DefaultShield::new);
     public static final RegistryObject<Item> SPIKE_SHIELD = ITEMS.register("spike_shield", SpikeShield::new);
     public static final RegistryObject<Item> SLIME_SHIELD = ITEMS.register("slime_shield", SlimeShield::new);
+    public static final RegistryObject<Item> ABSORBING_SHIELD = ITEMS.register("absorbing_shield", AbsorbingShield::new);
 
     public static void register(IEventBus bus){
         ITEMS.register(bus);

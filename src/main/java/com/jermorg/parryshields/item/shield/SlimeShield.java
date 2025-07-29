@@ -2,6 +2,7 @@ package com.jermorg.parryshields.item.shield;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -12,10 +13,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -24,6 +28,7 @@ import java.util.UUID;
 
 public class SlimeShield extends ShieldItem {
 
+    private static final short ParryTime = 10;
     private static final HashMap<UUID, Long> lastParryTime = new HashMap<>();
 
     public SlimeShield() {
@@ -46,13 +51,24 @@ public class SlimeShield extends ShieldItem {
     }
 
     @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return false;
+    }
+
+
+    @Override
     public boolean isFoil(ItemStack stack) {
         if (Minecraft.getInstance().player != null) {
             Player player = Minecraft.getInstance().player;
             if (player.isUsingItem() && player.getUseItem() == stack) {
                 Long parryTime = getLastParryTime(player);
                 long gameTime = player.level().getGameTime();
-                return parryTime != null && gameTime - parryTime < 10;
+                return parryTime != null && gameTime - parryTime < ParryTime;
             }
         }
         return super.isFoil(stack);
@@ -71,34 +87,13 @@ public class SlimeShield extends ShieldItem {
         if (source == null) return;
 
         Long parryTime = getLastParryTime(player);
-        boolean parried = parryTime != null && level.getGameTime() - parryTime < 10;
-
-//        if (source instanceof Projectile projectile) {
-//
-//            double originalSpeed = projectile.getDeltaMovement().length();
-//            Vec3 returnVelocity;
-//            if (projectile instanceof LargeFireball || projectile instanceof SmallFireball || projectile instanceof WitherSkull || projectile instanceof LlamaSpit || projectile instanceof Arrow || projectile instanceof ThrownTrident) {
-//                returnVelocity = projectile.getDeltaMovement().normalize().scale(-originalSpeed * (parried ? 2.0 : 0.5));
-//                projectile.setDeltaMovement(returnVelocity);
-//
-//                if (projectile instanceof AbstractArrow arrow) {
-//                    arrow.setNoPhysics(false);
-//                    arrow.setDeltaMovement(returnVelocity);
-//                }
-//            }
-//
-//            level.playSound(null, player.blockPosition(), parried ? SoundEvents.SLIME_JUMP : SoundEvents.SLIME_JUMP_SMALL, player.getSoundSource(), 1, 1.5f);
-//            level.playSound(null, player.blockPosition(), SoundEvents.SHIELD_BLOCK, player.getSoundSource(), 0.5f, 1.5f);
-//            level.sendParticles(ParticleTypes.ITEM_SLIME, player.getX(), player.getY() + 1.2, player.getZ(), 5, 0.1, 0.1, 0.1, 0.01);
-//            lastParryTime.remove(player.getUUID());
-//            return;
-//        }
+        boolean parried = parryTime != null && level.getGameTime() - parryTime < ParryTime;
 
         if (source instanceof LivingEntity attacker) {
-
             double strength = parried ? 1.5 : 0.5;
             Vec3 knockback = attacker.position().subtract(player.position()).normalize().scale(strength);
             attacker.setDeltaMovement(knockback.add(0, 0.2, 0));
+            attacker.hurtMarked = true;
 
             level.playSound(null, player.blockPosition(), parried ? SoundEvents.SLIME_ATTACK : SoundEvents.SLIME_JUMP, player.getSoundSource(), 1, 1.5f);
             level.playSound(null, player.blockPosition(), SoundEvents.SHIELD_BLOCK, player.getSoundSource(), 0.5f, 1.0f);
@@ -107,4 +102,67 @@ public class SlimeShield extends ShieldItem {
 
         lastParryTime.remove(player.getUUID());
     }
+
+
+    @SubscribeEvent
+    public void onProjectileImpact(ProjectileImpactEvent event) {
+
+        if (event.getEntity().level().isClientSide()) return;
+
+        Projectile projectile = event.getProjectile();
+
+        if (!(event.getRayTraceResult() instanceof EntityHitResult entityHitResult)) return;
+        if (!(entityHitResult.getEntity() instanceof LivingEntity blockingEntity)) return;
+
+        if (!blockingEntity.isBlocking()) return;
+
+        ItemStack activeItem = blockingEntity.getUseItem();
+        if (!(activeItem.getItem() instanceof SlimeShield)) return;
+
+        ServerLevel level = (ServerLevel) blockingEntity.level();
+        Long parryTime = blockingEntity instanceof Player player
+                ? getLastParryTime(player)
+                : 0L;
+        boolean parried = parryTime != null && level.getGameTime() - parryTime < ParryTime;
+
+        Vec3 look = blockingEntity.getLookAngle().normalize();
+
+        if (projectile instanceof LargeFireball) {
+            event.setImpactResult(ProjectileImpactEvent.ImpactResult.STOP_AT_CURRENT_NO_DAMAGE);
+
+            Vec3 reboundVelocity = look.scale(parried ? 2.0 : 1.0);
+            projectile.setDeltaMovement(reboundVelocity);
+            projectile.hurtMarked = true;
+
+        } else if (projectile instanceof AbstractArrow arrow) {
+            double originalSpeed = projectile.getDeltaMovement().length();
+            Vec3 returnVelocity = blockingEntity.getViewVector(1.0F).normalize().scale(parried ? originalSpeed * 1.5 : originalSpeed);
+
+            Entity reflectedProjectile = projectile.getType().create(level);
+            if (reflectedProjectile != null) {
+                reflectedProjectile.setPos(blockingEntity.getX(), blockingEntity.getEyeY(), blockingEntity.getZ());
+                reflectedProjectile.setDeltaMovement(returnVelocity);
+                level.addFreshEntity(reflectedProjectile);
+                projectile.remove(Entity.RemovalReason.DISCARDED);
+            }
+        } else if (projectile instanceof ThrownEnderpearl) {
+            event.setImpactResult(ProjectileImpactEvent.ImpactResult.STOP_AT_CURRENT_NO_DAMAGE);
+            Vec3 reboundVelocity = look.scale(parried ? 2.0 : 1.0);
+            projectile.setDeltaMovement(reboundVelocity);
+            projectile.hurtMarked = true;
+
+        } else if (projectile instanceof ThrownPotion potion) {
+            event.setImpactResult(ProjectileImpactEvent.ImpactResult.STOP_AT_CURRENT_NO_DAMAGE);
+            Vec3 reboundVelocity = look.scale(parried ? 2.0 : 1.0);
+            potion.setDeltaMovement(reboundVelocity);
+            potion.hurtMarked = true;
+        }
+
+        level.playSound(null, blockingEntity.blockPosition(), parried ? SoundEvents.SLIME_ATTACK : SoundEvents.SLIME_JUMP, blockingEntity.getSoundSource(), 1, 1.5f);
+        level.playSound(null, blockingEntity.blockPosition(), SoundEvents.SHIELD_BLOCK, blockingEntity.getSoundSource(), 0.5f, 1.0f);
+        level.sendParticles(ParticleTypes.ITEM_SLIME, blockingEntity.getX(), blockingEntity.getY() + 1.2, blockingEntity.getZ(), 5, 0.1, 0.1, 0.1, 0.01);
+
+        lastParryTime.remove(blockingEntity.getUUID());
+    }
+
 }
