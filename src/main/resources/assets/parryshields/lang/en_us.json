@@ -1,0 +1,8 @@
+{
+  "item.parryshields.shield_plus": "Stun shield",
+  "item.parryshields.slime_shield": "Slime shield",
+  "item.parryshields.spike_shield": "Spike shield",
+  "item.parryshields.absorbing_shield": "Absorbing shield",
+
+  "effect.parryshields.stun": "STUN!"
+}

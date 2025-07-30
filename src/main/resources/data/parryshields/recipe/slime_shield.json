@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SHS",
+    "SSS",
+    " S "
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:slime_block"
+    },
+    "H": {
+      "item": "minecraft:shield"
+    }
+  },
+  "result": {
+    "id": "parryshields:slime_shield",
+    "count": 1
+  }
+}
