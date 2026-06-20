@@ -2,23 +2,23 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "PKP",
-    "KIK",
-    "PKP"
+    "IAI",
+    "ADA",
+    "IAI"
   ],
   "key": {
-    "P": {
-      "tag": "minecraft:planks"
+    "A": {
+      "item": "minecraft:amethyst_shard"
     },
     "I": {
       "item": "minecraft:iron_ingot"
     },
-    "K": {
-      "item": "minecraft:pointed_dripstone"
+    "D": {
+      "item": "minecraft:diamond"
     }
   },
   "result": {
-    "id": "parryshields:spike_shield",
+    "item": "parryshields:absorbing_shield",
     "count": 1
   }
 }

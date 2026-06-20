@@ -2,23 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "IAI",
-    "ADA",
-    "IAI"
+    "AIA",
+    "AIA",
+    " A "
   ],
   "key": {
     "A": {
-      "item": "minecraft:amethyst_shard"
+      "tag": "minecraft:planks"
     },
     "I": {
       "item": "minecraft:iron_ingot"
-    },
-    "D": {
-      "item": "minecraft:diamond"
     }
   },
   "result": {
-    "id": "parryshields:absorbing_shield",
+    "item": "parryshields:shield_plus",
     "count": 1
   }
 }

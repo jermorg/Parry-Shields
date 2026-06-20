@@ -2,20 +2,23 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "AIA",
-    "AIA",
-    " A "
+    "PKP",
+    "KIK",
+    "PKP"
   ],
   "key": {
-    "A": {
+    "P": {
       "tag": "minecraft:planks"
     },
     "I": {
       "item": "minecraft:iron_ingot"
+    },
+    "K": {
+      "item": "minecraft:pointed_dripstone"
     }
   },
   "result": {
-    "id": "parryshields:shield_plus",
+    "item": "parryshields:spike_shield",
     "count": 1
   }
 }
